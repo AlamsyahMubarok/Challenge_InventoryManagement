@@ -1,55 +1,66 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Tambah Kategori
-        </h2>
-    </x-slot>
+    <div class="space-y-6">
 
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white p-6 rounded-lg shadow">
+        <div>
+            <p class="text-sm font-semibold text-red-500 mb-2">
+                Manajemen Kategori
+            </p>
 
-                <form action="{{ route('categories.store') }}" method="POST">
+            <h1 class="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Tambah Kategori
+            </h1>
+
+            <p class="mt-2 text-slate-500">
+                Tambahkan kategori baru untuk mengelompokkan data barang inventaris.
+            </p>
+        </div>
+
+        <div class="max-w-4xl">
+            <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-sm border border-slate-100">
+
+                <form action="{{ route('categories.store') }}" method="POST" class="space-y-6">
                     @csrf
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
                             Nama Kategori
                         </label>
 
                         <input type="text"
                                name="name"
                                value="{{ old('name') }}"
-                               class="w-full border-gray-300 rounded-md shadow-sm"
+                               placeholder="Contoh: Elektronik"
+                               class="w-full h-12 rounded-2xl border-slate-200 text-sm focus:border-[#FF2C2C] focus:ring-[#FF2C2C]"
                                required>
 
                         @error('name')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
                             Deskripsi
                         </label>
 
                         <textarea name="description"
-                                  rows="4"
-                                  class="w-full border-gray-300 rounded-md shadow-sm">{{ old('description') }}</textarea>
+                                  rows="5"
+                                  placeholder="Tulis deskripsi kategori..."
+                                  class="w-full rounded-2xl border-slate-200 text-sm focus:border-[#FF2C2C] focus:ring-[#FF2C2C]">{{ old('description') }}</textarea>
 
                         @error('description')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="flex justify-end gap-2">
+                    <div class="flex justify-end gap-3 pt-2">
                         <a href="{{ route('categories.index') }}"
-                           class="px-4 py-2 bg-gray-200 rounded-md text-sm">
+                           class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-700 text-sm font-bold hover:bg-slate-200 transition">
                             Batal
                         </a>
 
                         <button type="submit"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+                                class="px-5 py-3 rounded-2xl bg-[#FF2C2C] text-white text-sm font-bold shadow-sm hover:bg-[#D91F1F] transition">
                             Simpan
                         </button>
                     </div>
@@ -57,5 +68,6 @@
 
             </div>
         </div>
+
     </div>
 </x-app-layout>

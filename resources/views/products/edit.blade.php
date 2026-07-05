@@ -1,32 +1,45 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Edit Barang
-        </h2>
-    </x-slot>
+    <div class="space-y-6">
 
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <form action="{{ route('products.update', $product) }}" method="POST">
+        <div>
+            <p class="text-sm font-semibold text-red-500 mb-2">
+                Manajemen Barang
+            </p>
+
+            <h1 class="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Edit Barang
+            </h1>
+
+            <p class="mt-2 text-slate-500">
+                Perbarui informasi barang yang sudah terdaftar di sistem.
+            </p>
+        </div>
+
+        <div class="max-w-5xl">
+            <div class="bg-white rounded-3xl p-6 lg:p-8 shadow-sm border border-slate-100">
+                <form action="{{ route('products.update', $product) }}"
+                      method="POST"
+                      enctype="multipart/form-data"
+                      class="space-y-6">
                     @csrf
                     @method('PUT')
 
                     @include('products._form')
 
-                    <div class="flex justify-end gap-2">
+                    <div class="flex justify-end gap-3 pt-2">
                         <a href="{{ route('products.index') }}"
-                           class="px-4 py-2 bg-gray-200 rounded-md text-sm">
+                           class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-700 text-sm font-bold hover:bg-slate-200 transition">
                             Batal
                         </a>
 
                         <button type="submit"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+                                class="px-5 py-3 rounded-2xl bg-[#FF2C2C] text-white text-sm font-bold shadow-sm hover:bg-[#D91F1F] transition">
                             Update
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+
     </div>
 </x-app-layout>

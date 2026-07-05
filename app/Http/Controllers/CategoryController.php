@@ -9,13 +9,24 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $categories = Category::withCount('products')
-            ->latest()
-            ->paginate(10);
+        $search = $request->query('search');
 
-        return view('categories.index', compact('categories'));
+        $categories = Category::withCount('products')
+            ->when($search, function ($query) use ($search) {
+                $search = strtolower($search);
+
+                $query->where(function ($query) use ($search) {
+                    $query->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(description) LIKE ?', ["%{$search}%"]);
+                });
+            })
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('categories.index', compact('categories', 'search'));
     }
 
     public function create(): View
@@ -34,7 +45,10 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('categories.index')
-            ->with('success', 'Kategori berhasil ditambahkan.');
+            ->with('popup_success', [
+                'title' => 'Kategori Berhasil Ditambahkan',
+                'icon' => asset('images/kategori.png'),
+            ]);
     }
 
     public function edit(Category $category): View

@@ -18,15 +18,34 @@ class BorrowingController extends Controller
 
         $borrowings = Borrowing::with(['user', 'details.product'])
             ->when($search, function ($query) use ($search) {
-                $query->where('borrower_name', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($query) use ($search) {
-                        $query->where('name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('details.product', function ($query) use ($search) {
-                        $query->where('name', 'like', "%{$search}%")
-                            ->orWhere('code', 'like', "%{$search}%");
-                    });
+                $search = strtolower($search);
+
+                $query->where(function ($query) use ($search) {
+                    $query->whereRaw('LOWER(COALESCE(borrower_name, \'\')) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(status) LIKE ?', ["%{$search}%"])
+                        ->orWhereHas('user', function ($query) use ($search) {
+                            $query->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"]);
+                        })
+                        ->orWhereHas('details.product', function ($query) use ($search) {
+                            $query->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
+                                ->orWhereRaw('LOWER(code) LIKE ?', ["%{$search}%"]);
+                        });
+
+                    if (str_contains($search, 'dipinjam')) {
+                        $query->orWhere('status', 'borrowed');
+                    }
+
+                    if (str_contains($search, 'dikembalikan') || str_contains($search, 'kembali')) {
+                        $query->orWhere('status', 'returned');
+                    }
+
+                    if (str_contains($search, 'terlambat')) {
+                        $query->orWhere(function ($query) {
+                            $query->where('status', 'borrowed')
+                                ->whereDate('due_date', '<', today());
+                        });
+                    }
+                });
             })
             ->latest()
             ->paginate(10)
@@ -87,7 +106,10 @@ class BorrowingController extends Controller
 
         return redirect()
             ->route('borrowings.index')
-            ->with('success', 'Peminjaman berhasil dibuat.');
+            ->with('popup_success', [
+                'title' => 'Peminjaman Berhasil Ditambahkan',
+                'icon' => asset('images/peminjaman.png'),
+            ]);
     }
 
     public function show(Borrowing $borrowing): View
@@ -122,10 +144,20 @@ class BorrowingController extends Controller
                     ->lockForUpdate()
                     ->firstOrFail();
 
-                $product->increment('stock', $detail->quantity);
+                $conditionAfter = $validated['condition_after'] ?? 'Baik';
+
+                if ($conditionAfter === 'Rusak Ringan') {
+                    $product->increment('light_damage_stock', $detail->quantity);
+                } elseif ($conditionAfter === 'Rusak Berat') {
+                    $product->increment('heavy_damage_stock', $detail->quantity);
+                } elseif ($conditionAfter === 'Maintenance') {
+                    $product->increment('maintenance_stock', $detail->quantity);
+                } else {
+                    $product->increment('stock', $detail->quantity);
+                }
 
                 $detail->update([
-                    'condition_after' => $validated['condition_after'] ?? null,
+                    'condition_after' => $conditionAfter,
                     'notes' => $validated['return_notes'] ?? null,
                 ]);
             }

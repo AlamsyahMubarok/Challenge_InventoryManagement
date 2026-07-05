@@ -9,7 +9,9 @@ use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -47,6 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::middleware('role:admin,manager')->group(function () {
+    Route::get('/reports/export/csv', [ReportController::class, 'exportCsv'])
+        ->name('reports.export.csv');
+
     Route::get('/reports', [ReportController::class, 'index'])
         ->name('reports.index');
     });

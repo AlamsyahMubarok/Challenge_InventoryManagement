@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Borrowing;
 use App\Models\BorrowingDetail;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -21,10 +22,28 @@ class DashboardController extends Controller
 
         $returnedBorrowings = Borrowing::where('status', 'returned')->count();
 
-        $monthlyBorrowings = Borrowing::selectRaw("strftime('%m', borrow_date) as month, COUNT(*) as total")
+        $lowStockCount = Product::whereColumn('stock', '<=', 'minimum_stock')
+            ->count();
+
+        $lowStockProducts = Product::with('category')
+            ->whereColumn('stock', '<=', 'minimum_stock')
+            ->orderBy('stock')
+            ->orderBy('name')
+            ->limit(6)
+            ->get();
+
+        $driver = DB::connection()->getDriverName();
+
+        $monthExpression = match ($driver) {
+            'pgsql' => "TO_CHAR(borrow_date, 'MM')",
+            'sqlite' => "strftime('%m', borrow_date)",
+            default => "LPAD(MONTH(borrow_date), 2, '0')",
+        };
+
+        $monthlyBorrowings = Borrowing::selectRaw("$monthExpression as month, COUNT(*) as total")
             ->whereYear('borrow_date', now()->year)
-            ->groupBy('month')
-            ->orderBy('month')
+            ->groupByRaw($monthExpression)
+            ->orderByRaw($monthExpression)
             ->pluck('total', 'month');
 
         $months = collect(range(1, 12))->map(function ($month) {
@@ -49,6 +68,8 @@ class DashboardController extends Controller
             'availableStock',
             'borrowedQuantity',
             'returnedBorrowings',
+            'lowStockCount',
+            'lowStockProducts',
             'monthlyChartLabels',
             'monthlyChartData',
             'latestBorrowings'
