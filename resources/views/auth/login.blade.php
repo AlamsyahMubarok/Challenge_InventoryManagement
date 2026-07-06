@@ -1,5 +1,6 @@
 <x-guest-layout>
     @include('auth.partials.auth-responsive-style')
+    @include('auth.partials.splash-screen')
 
     <style>
         @media (min-width: 1025px) {
