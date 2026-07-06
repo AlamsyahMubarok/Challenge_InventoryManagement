@@ -1,183 +1,117 @@
 <x-guest-layout>
+    @include('auth.partials.auth-responsive-style')
+
     <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
+        @media (min-width: 1025px) {
+            html,
+            body {
+                height: 100%;
+                overflow: hidden;
+            }
 
-        .login-page {
-            min-height: 100vh;
-            width: 100%;
-            background: #ffffff;
-            display: grid;
-            grid-template-columns: 58% 42%;
-        }
+            .auth-page-login {
+                height: 100svh;
+                min-height: 100svh;
+                overflow: hidden;
+            }
 
-        .login-illustration {
-            position: relative;
-            min-height: 100vh;
-            overflow: hidden;
-            background: #f8fafc;
-        }
+            .auth-page-login .auth-illustration {
+                height: 100svh;
+                min-height: 100svh;
+                overflow: hidden;
+            }
 
-        .login-illustration img {
-            width: 100%;
-            height: 100%;
-            min-height: 100vh;
-            object-fit: cover;
-            object-position: center;
-            display: block;
-        }
+            .auth-page-login .auth-illustration img {
+                width: 100%;
+                height: 100%;
+                min-height: 100%;
+                object-fit: cover;
+                object-position: center center;
+                display: block;
+            }
 
-        .login-illustration::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                180deg,
-                rgba(255, 255, 255, 0.03) 0%,
-                rgba(255, 44, 44, 0.07) 100%
-            );
-            pointer-events: none;
-        }
+            .auth-page-login .auth-content {
+                height: 100svh;
+                min-height: 100svh;
+                overflow: hidden;
+                padding-top: 22px;
+                padding-bottom: 22px;
+            }
 
-        .login-glass {
-            position: absolute;
-            left: 42px;
-            bottom: 42px;
-            width: 460px;
-            max-width: calc(100% - 84px);
-            padding: 30px;
-            border-radius: 24px;
-            background: rgba(17, 24, 39, 0.52);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            color: #ffffff;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
-            z-index: 2;
-        }
+            .auth-page-login .auth-form-wrap {
+                margin-block: auto;
+            }
 
-        .login-glass h2 {
-            margin: 0 0 14px;
-            font-size: 38px;
-            line-height: 1.15;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-        }
+            .auth-page-login .auth-logo {
+                width: 190px;
+                margin-bottom: 6px;
+            }
 
-        .login-glass p {
-            margin: 0;
-            font-size: 16px;
-            line-height: 1.8;
-            color: rgba(255, 255, 255, 0.92);
-        }
+            .auth-page-login .auth-subtitle {
+                margin-bottom: 26px;
+                font-size: 13px;
+                line-height: 1.5;
+            }
 
-        .login-content {
-            min-height: 100vh;
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 56px 76px;
-        }
+            .auth-page-login .auth-title {
+                font-size: 32px;
+                margin-bottom: 10px;
+            }
 
-        .login-form-wrap {
-            width: 100%;
-            max-width: 480px;
-        }
+            .auth-page-login .auth-description {
+                margin-bottom: 24px;
+                font-size: 14px;
+                line-height: 1.6;
+            }
 
-        .login-logo {
-            width: 300px;
-            height: auto;
-            display: block;
-            margin: 0 auto 8px;
-        }
+            .auth-page-login .form-group {
+                margin-bottom: 16px;
+            }
 
-        .login-subtitle {
-            margin: 0 0 58px;
-            text-align: center;
-            font-size: 17px;
-            line-height: 1.6;
-            color: #6b7280;
-        }
+            .auth-page-login .form-label {
+                margin-bottom: 7px;
+                font-size: 13px;
+            }
 
-        .login-title {
-            margin: 0 0 14px;
-            font-size: 42px;
-            line-height: 1.15;
-            font-weight: 800;
-            color: #111827;
-            letter-spacing: -0.03em;
-        }
+            .auth-page-login .form-input {
+                height: 50px;
+                border-radius: 16px;
+                font-size: 14px;
+            }
 
-        .login-description {
-            margin: 0 0 38px;
-            font-size: 17px;
-            line-height: 1.8;
-            color: #6b7280;
-        }
+            .auth-page-login .form-input::placeholder {
+                font-size: 13px;
+            }
 
-        .form-group {
-            margin-bottom: 24px;
-        }
+            .auth-page-login .password-box .form-input {
+                padding-right: 92px;
+            }
 
-        .form-label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 15px;
-            font-weight: 700;
-            color: #111827;
-        }
+            .auth-page-login .toggle-password {
+                font-size: 12px;
+            }
 
-        .form-input {
-            width: 100%;
-            height: 64px;
-            border: 1px solid #d1d5db;
-            border-radius: 20px;
-            padding: 0 20px;
-            background: #ffffff;
-            font-size: 16px;
-            color: #111827;
-            transition: all 0.2s ease;
-        }
+            .auth-page-login .auth-button {
+                height: 52px;
+                border-radius: 16px;
+            }
 
-        .form-input::placeholder {
-            font-size: 15px;
-            color: #9ca3af;
-        }
+            .auth-page-login .auth-glass {
+                bottom: 28px;
+                left: 28px;
+                width: min(390px, calc(100% - 56px));
+                padding: 24px;
+            }
 
-        .form-input:focus {
-            border-color: #FF2C2C;
-            box-shadow: 0 0 0 4px rgba(255, 44, 44, 0.14);
-            outline: none;
-        }
+            .auth-page-login .auth-glass h2 {
+                font-size: 30px;
+                margin-bottom: 12px;
+            }
 
-        .password-box {
-            position: relative;
-        }
-
-        .password-box .form-input {
-            padding-right: 96px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            border: none;
-            background: transparent;
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .toggle-password:hover {
-            color: #111827;
+            .auth-page-login .auth-glass p {
+                font-size: 14px;
+                line-height: 1.7;
+            }
         }
 
         .login-options {
@@ -185,165 +119,52 @@
             align-items: center;
             justify-content: space-between;
             gap: 18px;
-            margin-bottom: 28px;
+            margin-bottom: 22px;
         }
 
         .remember-label {
             display: inline-flex;
             align-items: center;
-            font-size: 15px;
-            color: #6b7280;
+            font-size: 14px;
+            color: var(--inventra-muted);
         }
 
         .remember-label input {
-            width: 17px;
-            height: 17px;
+            width: 16px;
+            height: 16px;
             margin-right: 9px;
             border-radius: 5px;
-            border-color: #d1d5db;
-            color: #FF2C2C;
+            border-color: var(--inventra-border);
+            color: var(--inventra-red);
         }
 
         .remember-label input:focus {
             box-shadow: 0 0 0 3px rgba(255, 44, 44, 0.16);
         }
 
-        .login-link {
-            color: #FF2C2C;
-            font-size: 15px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .login-link:hover {
-            color: #D91F1F;
-            text-decoration: underline;
-        }
-
-        .login-button {
-            width: 100%;
-            height: 64px;
-            border: none;
-            border-radius: 20px;
-            background: #FF2C2C;
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 16px 34px rgba(255, 44, 44, 0.28);
-            transition: all 0.2s ease;
-        }
-
-        .login-button:hover {
-            background: #D91F1F;
-            transform: translateY(-1px);
-            box-shadow: 0 18px 38px rgba(217, 31, 31, 0.32);
-        }
-
-        .register-text {
-            margin-top: 26px;
-            text-align: center;
-            font-size: 15px;
-            color: #6b7280;
-        }
-
-        @media (max-width: 1280px) {
-            .login-content {
-                padding: 48px 58px;
-            }
-
-            .login-form-wrap {
-                max-width: 450px;
-            }
-
-            .login-logo {
-                width: 280px;
-            }
-
-            .login-title {
-                font-size: 38px;
-            }
-
-            .login-description {
-                font-size: 16px;
-            }
-
-            .form-input {
-                height: 60px;
-            }
-
-            .login-button {
-                height: 60px;
-            }
-        }
-
         @media (max-width: 1024px) {
-            .login-page {
-                grid-template-columns: 1fr;
-            }
-
-            .login-illustration {
-                display: none;
-            }
-
-            .login-content {
-                padding: 42px 28px;
-            }
-
-            .login-form-wrap {
-                max-width: 460px;
+            html,
+            body {
+                overflow: auto;
             }
         }
 
         @media (max-width: 520px) {
-            .login-content {
-                padding: 34px 22px;
-            }
-
-            .login-logo {
-                width: 230px;
-            }
-
-            .login-subtitle {
-                margin-bottom: 42px;
-                font-size: 14px;
-            }
-
-            .login-title {
-                font-size: 30px;
-            }
-
-            .login-description {
-                font-size: 15px;
-                margin-bottom: 30px;
-            }
-
-            .form-input {
-                height: 56px;
-                font-size: 14px;
-                border-radius: 16px;
-            }
-
-            .login-button {
-                height: 56px;
-                border-radius: 16px;
-            }
-
             .login-options {
                 align-items: flex-start;
                 flex-direction: column;
                 gap: 12px;
+                margin-bottom: 20px;
             }
         }
     </style>
 
-    <main class="login-page">
-        <section class="login-illustration">
-            <img src="{{ asset('images/vektor-perusahaan.jpg') }}?v=60"
+    <main class="auth-page auth-page-login">
+        <section class="auth-illustration">
+            <img src="{{ asset('images/vektor-perusahaan.jpg') }}?v=123"
                  alt="Ilustrasi manajemen inventaris">
 
-            <div class="login-glass">
+            <div class="auth-glass">
                 <h2>Kelola Inventaris Lebih Mudah</h2>
                 <p>
                     Pantau barang, stok, peminjaman, dan laporan inventaris dalam satu sistem yang rapi.
@@ -351,21 +172,19 @@
             </div>
         </section>
 
-        <section class="login-content">
-            <div class="login-form-wrap">
-                <img src="{{ asset('images/inventra-logo-full.png') }}?v=60"
+        <section class="auth-content">
+            <div class="auth-form-wrap">
+                <img src="{{ asset('images/inventra-logo-full.png') }}?v=123"
                      alt="Inventra Logo"
-                     class="login-logo">
+                     class="auth-logo">
 
-                <p class="login-subtitle">
+                <p class="auth-subtitle">
                     Sistem manajemen PT Telkomsel untuk mengelola inventaris berbasis web
                 </p>
 
-                <h1 class="login-title">
-                    Selamat Datang
-                </h1>
+                <h1 class="auth-title">Selamat Datang</h1>
 
-                <p class="login-description">
+                <p class="auth-description">
                     Masuk ke akun Inventra untuk mengelola data inventaris Anda.
                 </p>
 
@@ -420,20 +239,22 @@
                         </label>
 
                         @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="login-link">
+                            <a href="{{ route('password.request') }}" class="auth-link">
                                 Lupa kata sandi?
                             </a>
                         @endif
                     </div>
 
-                    <button type="submit" class="login-button">
-                        Masuk
-                    </button>
+                    <div class="auth-actions">
+                        <button type="submit" class="auth-button">
+                            Masuk
+                        </button>
+                    </div>
 
                     @if (Route::has('register'))
-                        <p class="register-text">
+                        <p class="auth-helper-text">
                             Belum punya akun?
-                            <a href="{{ route('register') }}" class="login-link">
+                            <a href="{{ route('register') }}" class="auth-link">
                                 Daftar akun
                             </a>
                         </p>

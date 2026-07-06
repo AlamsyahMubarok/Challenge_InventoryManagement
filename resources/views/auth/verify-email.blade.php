@@ -1,31 +1,59 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+    @include('auth.partials.auth-responsive-style')
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
-    @endif
+    <main class="auth-page">
+        <section class="auth-illustration">
+            <img src="{{ asset('images/vektor-perusahaan.jpg') }}?v=120"
+                 alt="Ilustrasi manajemen inventaris">
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+            <div class="auth-glass">
+                <h2>Verifikasi Email Akun</h2>
+                <p>
+                    Pastikan alamat email Anda aktif agar akun Inventra dapat digunakan dengan aman.
+                </p>
             </div>
-        </form>
+        </section>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
+        <section class="auth-content">
+            <div class="auth-form-wrap">
+                <img src="{{ asset('images/inventra-logo-full.png') }}?v=120"
+                     alt="Inventra Logo"
+                     class="auth-logo">
 
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
-        </form>
-    </div>
+                <p class="auth-subtitle">
+                    Sistem manajemen PT Telkomsel untuk mengelola inventaris berbasis web
+                </p>
+
+                <h1 class="auth-title">Verifikasi Email</h1>
+
+                <div class="auth-info-box">
+                    Terima kasih sudah mendaftar. Sebelum mulai menggunakan Inventra, verifikasi alamat email Anda melalui link yang sudah kami kirimkan. Jika email belum diterima, Anda dapat mengirim ulang link verifikasi.
+                </div>
+
+                @if (session('status') == 'verification-link-sent')
+                    <div class="auth-status">
+                        Link verifikasi baru berhasil dikirim ke alamat email yang Anda gunakan saat registrasi.
+                    </div>
+                @endif
+
+                <div class="auth-actions">
+                    <form method="POST" action="{{ route('verification.send') }}">
+                        @csrf
+
+                        <button type="submit" class="auth-button">
+                            Kirim Ulang Email Verifikasi
+                        </button>
+                    </form>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+
+                        <button type="submit" class="auth-secondary-button">
+                            Keluar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
 </x-guest-layout>

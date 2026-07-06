@@ -1,27 +1,83 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
-    </div>
+    @include('auth.partials.auth-responsive-style')
 
-    <form method="POST" action="{{ route('password.confirm') }}">
-        @csrf
+    <main class="auth-page">
+        <section class="auth-illustration">
+            <img src="{{ asset('images/vektor-perusahaan.jpg') }}?v=120"
+                 alt="Ilustrasi manajemen inventaris">
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
+            <div class="auth-glass">
+                <h2>Konfirmasi Akses Akun</h2>
+                <p>
+                    Masukkan kembali kata sandi untuk memastikan tindakan ini dilakukan oleh pemilik akun.
+                </p>
+            </div>
+        </section>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+        <section class="auth-content">
+            <div class="auth-form-wrap">
+                <img src="{{ asset('images/inventra-logo-full.png') }}?v=120"
+                     alt="Inventra Logo"
+                     class="auth-logo">
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+                <p class="auth-subtitle">
+                    Sistem manajemen PT Telkomsel untuk mengelola inventaris berbasis web
+                </p>
 
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
-    </form>
+                <h1 class="auth-title">Konfirmasi Kata Sandi</h1>
+
+                <p class="auth-description">
+                    Ini adalah area aman. Masukkan kata sandi Anda sebelum melanjutkan proses.
+                </p>
+
+                <form method="POST" action="{{ route('password.confirm') }}">
+                    @csrf
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Kata Sandi</label>
+
+                        <div class="password-box">
+                            <input id="password"
+                                   type="password"
+                                   name="password"
+                                   required
+                                   autocomplete="current-password"
+                                   placeholder="Masukkan kata sandi"
+                                   class="form-input">
+
+                            <button type="button" id="togglePassword" class="toggle-password">
+                                Lihat
+                            </button>
+                        </div>
+
+                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                    </div>
+
+                    <div class="auth-actions">
+                        <button type="submit" class="auth-button">
+                            Konfirmasi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButton = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+
+            if (!toggleButton || !passwordInput) {
+                return;
+            }
+
+            toggleButton.addEventListener('click', function () {
+                const isPassword = passwordInput.type === 'password';
+
+                passwordInput.type = isPassword ? 'text' : 'password';
+                toggleButton.textContent = isPassword ? 'Sembunyikan' : 'Lihat';
+            });
+        });
+    </script>
 </x-guest-layout>
