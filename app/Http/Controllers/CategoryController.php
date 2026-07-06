@@ -45,10 +45,51 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('categories.index')
-            ->with('popup_success', [
-                'title' => 'Kategori Berhasil Ditambahkan',
-                'icon' => asset('images/kategori.png'),
-            ]);
+            ->with('success', 'Kategori berhasil ditambahkan.');
+    }
+
+    public function show(Request $request, Category $category): View
+    {
+        $search = $request->query('search');
+
+        $products = $category->products()
+            ->with('category')
+            ->withSum([
+                'borrowingDetails as borrowed_quantity' => function ($query) {
+                    $query->whereHas('borrowing', function ($query) {
+                        $query->where('status', 'borrowed');
+                    });
+                },
+            ], 'quantity')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('code', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('location', 'like', "%{$search}%")
+                        ->orWhere('condition', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $totalProducts = $category->products()->count();
+
+        $availableStock = $category->products()->sum('stock');
+
+        $lowStockProductsCount = $category->products()
+            ->whereColumn('stock', '<=', 'minimum_stock')
+            ->count();
+
+        return view('categories.show', compact(
+            'category',
+            'products',
+            'search',
+            'totalProducts',
+            'availableStock',
+            'lowStockProductsCount'
+        ));
     }
 
     public function edit(Category $category): View

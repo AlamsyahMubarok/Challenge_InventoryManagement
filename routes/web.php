@@ -38,7 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('products.index');
         })->name('inventory.index');
 
-        Route::resource('categories', CategoryController::class)->except(['show']);
+        Route::resource('categories', CategoryController::class);
         Route::resource('products', ProductController::class);
 
         Route::patch('/borrowings/{borrowing}/return', [BorrowingController::class, 'returnItem'])

@@ -139,8 +139,11 @@
                                     {{ $categories->firstItem() + $loop->index }}
                                 </td>
 
-                                <td class="px-5 py-4 text-sm font-bold text-slate-800">
-                                    {{ $category->name }}
+                                <td class="px-5 py-4 text-sm">
+                                    <a href="{{ route('categories.show', $category) }}"
+                                       class="font-extrabold text-slate-900 hover:text-[#FF2C2C] transition">
+                                        {{ $category->name }}
+                                    </a>
                                 </td>
 
                                 <td class="px-5 py-4 text-sm text-slate-500">
@@ -148,13 +151,19 @@
                                 </td>
 
                                 <td class="px-5 py-4 text-sm">
-                                    <span class="px-3 py-1.5 rounded-full bg-sky-50 text-sky-600 text-xs font-bold">
+                                    <a href="{{ route('categories.show', $category) }}"
+                                       class="inline-flex px-3 py-1.5 rounded-full bg-sky-50 text-sky-600 text-xs font-bold hover:bg-sky-100 transition">
                                         {{ $category->products_count }} Barang
-                                    </span>
+                                    </a>
                                 </td>
 
                                 <td class="px-5 py-4 text-sm text-right">
                                     <div class="inline-flex items-center gap-2">
+                                        <a href="{{ route('categories.show', $category) }}"
+                                           class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
+                                            Detail
+                                        </a>
+
                                         <a href="{{ route('categories.edit', $category) }}"
                                            class="px-4 py-2 rounded-xl bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition">
                                             Edit
@@ -196,11 +205,17 @@
                 <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-sm text-slate-500">
                         Menampilkan
-                        <span class="font-bold text-slate-700">{{ $categories->firstItem() }}</span>
+                        <span class="font-bold text-slate-700">
+                            {{ $categories->firstItem() }}
+                        </span>
                         sampai
-                        <span class="font-bold text-slate-700">{{ $categories->lastItem() }}</span>
+                        <span class="font-bold text-slate-700">
+                            {{ $categories->lastItem() }}
+                        </span>
                         dari
-                        <span class="font-bold text-slate-700">{{ $categories->total() }}</span>
+                        <span class="font-bold text-slate-700">
+                            {{ $categories->total() }}
+                        </span>
                         data
                     </p>
 
