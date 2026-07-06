@@ -1,72 +1,120 @@
 # Inventra - Inventory Management System
 
-Inventra adalah aplikasi manajemen inventaris berbasis web yang dibuat untuk membantu pengelolaan data barang, kategori, stok, peminjaman, pengembalian, laporan, dan notifikasi stok menipis.
+Inventra adalah aplikasi manajemen inventaris berbasis web yang dibuat untuk membantu pengelolaan data barang, kategori, stok, peminjaman, pengembalian, laporan, upload gambar barang, notifikasi stok menipis, dan REST API.
 
-Aplikasi ini dibangun menggunakan Laravel, Blade, Tailwind CSS, PostgreSQL Supabase, Supabase Storage, dan REST API berbasis Laravel Sanctum.
-
----
+Aplikasi ini dibangun menggunakan Laravel, Blade, Tailwind CSS, PostgreSQL Supabase, Supabase Storage, Laravel Breeze, Laravel Sanctum, Chart.js, dan Pest Testing.
 
 ## Deskripsi Project
 
-Inventra dirancang untuk kebutuhan pengelolaan inventaris yang memiliki proses utama berupa pencatatan barang, pengelompokan kategori, peminjaman barang, pengembalian barang, pelaporan aktivitas inventaris, serta pemantauan stok barang yang mulai menipis.
+Inventra dibuat sebagai prototype sistem manajemen inventaris untuk membantu proses pencatatan barang, pengelompokan kategori, pemantauan stok, peminjaman barang, pengembalian barang, dan pembuatan laporan inventaris.
 
-Sistem ini mendukung pembagian hak akses berdasarkan role, sehingga setiap pengguna hanya dapat mengakses fitur sesuai tanggung jawabnya.
+Sistem ini menggunakan role-based access control sehingga setiap pengguna hanya dapat mengakses fitur sesuai tanggung jawabnya.
 
----
+## Link Demo
+
+Production URL:
+
+```txt
+https://inventra.koreacentral.cloudapp.azure.com
+```
+
+Production API Base URL:
+
+```txt
+https://inventra.koreacentral.cloudapp.azure.com/api
+```
+
+## Akun Demo
+
+Gunakan akun berikut untuk mencoba aplikasi.
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@example.com | admin123 |
+| Staff | staff@example.com | staff123 |
+| Manager | manager@example.com | manager123 |
+
+## Role dan Hak Akses
+
+| Role | Hak Akses |
+|---|---|
+| Admin | Dashboard, kategori, barang, peminjaman, laporan, profile |
+| Staff | Dashboard, kategori, barang, peminjaman, profile |
+| Manager | Dashboard, laporan, profile |
 
 ## Fitur Utama
 
-### Autentikasi Pengguna
+### Authentication
 
-- Register pengguna baru
+Inventra menggunakan Laravel Breeze untuk fitur autentikasi.
+
+Fitur autentikasi:
+
+- Register
 - Login
 - Logout
 - Forgot password
 - Reset password melalui email
-- Update profil
+- Update profile
 - Update password
 - Hapus akun
-
-Inventra menggunakan sistem autentikasi berbasis Laravel Breeze.
-
-Fitur autentikasi yang tersedia:
-
-- Login
-- Register
-- Logout
-- Profile management
-- Forgot password
-- Reset password
-- Email validation restriction
-- Auto logout karena tidak aktif
-
-Jika pengguna tidak aktif selama 30 menit, sistem akan otomatis logout dan mengarahkan pengguna ke halaman login. Pesan yang ditampilkan:
-"Sesi Anda telah berakhir. Silakan masuk kembali."
 
 ### Email Registration Restriction
 
 Registrasi publik hanya mengizinkan email dengan domain `@gmail.com`.
 
-Jika pengguna mencoba register menggunakan email selain `@gmail.com`, sistem akan menampilkan pesan:
+Jika pengguna register menggunakan email selain `@gmail.com`, sistem akan menampilkan pesan:
 
-"Harap gunakan email valid @gmail.com."
+```txt
+Harap gunakan email valid @gmail.com.
+```
 
-### Manajemen Role
+Akun demo berikut tetap dikecualikan agar dapat digunakan untuk kebutuhan testing role:
 
-Inventra memiliki tiga role utama:
+```txt
+admin@example.com
+staff@example.com
+manager@example.com
+```
 
-| Role | Hak Akses |
-|---|---|
-| Admin | Dashboard, kategori, barang, peminjaman, laporan, profil |
-| Staff | Dashboard, kategori, barang, peminjaman, profil |
-| Manager | Dashboard, laporan, profil |
+Pembatasan email diterapkan pada register dan login. Akun non-Gmail yang bukan akun demo tidak dapat digunakan untuk login.
+
+### Auto Logout
+
+Inventra menerapkan auto logout jika pengguna tidak aktif selama 30 menit.
+
+Aktivitas yang dihitung oleh sistem:
+
+- Klik
+- Scroll
+- Input keyboard
+- Sentuhan layar
+- Pergerakan pointer
+
+Jika tidak ada aktivitas selama 30 menit, pengguna akan diarahkan ke halaman login dan sistem menampilkan pesan:
+
+```txt
+Sesi Anda telah berakhir karena tidak ada aktivitas selama 30 menit. Silakan masuk kembali.
+```
+
+### Splash Screen Login
+
+Halaman login memiliki splash screen berisi logo Inventra dan teks penyambut:
+
+```txt
+Selamat datang di aplikasi Inventra
+```
+
+Splash screen menggunakan animasi halus pada logo, teks, dan progress bar.
 
 ### Dashboard Inventaris
 
-- Ringkasan jumlah jenis barang
-- Ringkasan stok tersedia
-- Ringkasan barang yang sedang dipinjam
-- Ringkasan transaksi selesai
+Dashboard menampilkan:
+
+- Total barang
+- Barang tersedia
+- Barang dipinjam
+- Transaksi selesai
 - Grafik peminjaman bulanan
 - Peminjaman terbaru
 - Aksi cepat
@@ -75,67 +123,112 @@ Inventra memiliki tiga role utama:
 
 ### Manajemen Kategori
 
-- Menampilkan daftar kategori
-- Mencari kategori
-- Menambah kategori
-- Mengedit kategori
-- Menghapus kategori
-- Validasi agar kategori yang masih memiliki barang tidak dapat dihapus
+Fitur kategori:
+
+- Daftar kategori
+- Pencarian kategori
+- Tambah kategori
+- Edit kategori
+- Hapus kategori
+- Validasi kategori tidak dapat dihapus jika masih memiliki barang
+- Detail kategori
 
 ### Detail Kategori
-Inventra menyediakan halaman detail kategori untuk membantu pengguna melihat barang berdasarkan kategori tertentu.
 
-Pada halaman detail kategori, pengguna dapat melihat:
+Halaman detail kategori menampilkan:
 
 - Nama kategori
 - Deskripsi kategori
 - Jumlah barang dalam kategori
 - Total stok tersedia
-- Jumlah barang dengan stok menipis
-- Daftar barang yang termasuk dalam kategori tersebut
+- Jumlah barang stok menipis
+- Daftar barang dalam kategori
 
-Setiap barang pada halaman detail kategori dapat diklik dan akan mengarahkan pengguna ke halaman detail barang.
+Setiap barang pada halaman detail kategori dapat diklik untuk membuka halaman detail barang.
+
+Alur fitur:
+
+```txt
+Halaman Kategori
+  |
+  | Klik nama kategori atau tombol Detail
+  v
+Halaman Detail Kategori
+  |
+  | Klik salah satu barang
+  v
+Halaman Detail Barang
+```
 
 ### Manajemen Barang
 
-- Menampilkan daftar barang
-- Mencari barang berdasarkan kode, nama, kategori, lokasi, dan kondisi
-- Menambah barang
-- Mengedit barang
-- Melihat detail barang
-- Menghapus barang
+Fitur barang:
+
+- Daftar barang
+- Pencarian barang berdasarkan kode, nama, kategori, lokasi, dan kondisi
+- Tambah barang
+- Edit barang
+- Detail barang
+- Hapus barang
 - Upload gambar barang ke Supabase Storage
-- Filter barang stok menipis
-- Status stok menipis berdasarkan batas minimum stok
+- Filter stok menipis
+- Pagination
+
+Field barang:
+
+- Kode barang
+- Nama barang
+- Kategori
+- Deskripsi
+- Stok siap dipinjam
+- Minimum stok
+- Stok rusak ringan
+- Stok rusak berat
+- Stok maintenance
+- Lokasi penyimpanan
+- Kondisi barang
+- Gambar barang
 
 ### Model Stok Barang
 
-Inventra membedakan stok berdasarkan kondisi fisik barang:
+Inventra membedakan stok berdasarkan kondisi barang.
 
-- Stok siap dipinjam
-- Barang sedang dipinjam
-- Rusak ringan
-- Rusak berat
-- Maintenance
-- Total fisik barang
-- Batas stok minimum
-
-Dengan model ini, satu jenis barang dapat memiliki beberapa unit fisik dengan kondisi yang berbeda.
+| Jenis Stok | Keterangan |
+|---|---|
+| Stok siap dipinjam | Barang yang dapat dipinjam |
+| Barang dipinjam | Barang yang sedang dipinjam |
+| Rusak ringan | Barang rusak ringan |
+| Rusak berat | Barang rusak berat |
+| Maintenance | Barang dalam perawatan |
+| Total fisik | Total stok fisik dari semua kondisi |
+| Minimum stok | Batas minimum untuk notifikasi stok menipis |
 
 ### Manajemen Peminjaman
 
-- Menampilkan riwayat peminjaman
-- Mencari peminjaman berdasarkan peminjam, barang, kode barang, status, dan keterlambatan
-- Menambah peminjaman
-- Mengurangi stok otomatis saat barang dipinjam
-- Melihat detail peminjaman
-- Mengembalikan barang
-- Mengatur kondisi barang setelah dikembalikan
-- Menambah stok sesuai kondisi pengembalian
+Fitur peminjaman:
+
+- Riwayat peminjaman
+- Pencarian peminjaman
+- Tambah peminjaman
+- Detail peminjaman
+- Pengembalian barang
+- Status peminjaman
+- Pengurangan stok otomatis saat barang dipinjam
+- Penambahan stok otomatis sesuai kondisi pengembalian
+
+Field peminjaman:
+
+- Nama peminjam
+- Barang
+- Jumlah barang
+- Tanggal pinjam
+- Tanggal kembali
+- Status
+- Catatan
 
 ### Pengembalian Barang
 
-Saat barang dikembalikan, sistem akan mengubah stok berdasarkan kondisi akhir:
+Saat barang dikembalikan, sistem memperbarui stok sesuai kondisi akhir.
 
 | Kondisi Setelah Dikembalikan | Dampak pada Stok |
 |---|---|
@@ -145,6 +238,8 @@ Saat barang dikembalikan, sistem akan mengubah stok berdasarkan kondisi akhir:
 | Maintenance | Menambah stok maintenance |
 
 ### Laporan Inventaris
+
+Fitur laporan:
 
 - Ringkasan jumlah barang
 - Ringkasan stok tersedia
@@ -156,46 +251,52 @@ Saat barang dikembalikan, sistem akan mengubah stok berdasarkan kondisi akhir:
 - Distribusi status peminjaman
 - Daftar barang stok menipis
 - Filter laporan berdasarkan tanggal dan status
-- Cetak laporan sebagai PDF
+- Cetak laporan
 - Export laporan sebagai CSV yang dapat dibuka di Excel
 
 ### Notifikasi Stok Menipis
 
-- Icon notifikasi di dashboard
-- Popup notifikasi stok menipis
-- Menampilkan daftar barang dengan stok siap dipinjam yang sudah mencapai batas minimum
-- Link langsung ke detail barang stok menipis
+Inventra menyediakan notifikasi stok menipis pada dashboard.
+
+Fitur notifikasi:
+
+- Icon notifikasi
+- Popup daftar stok menipis
+- Link langsung ke detail barang
+- Indikator stok berdasarkan `minimum_stock`
+
+### Popup Sukses
+
+Inventra menampilkan popup sukses saat pengguna berhasil menambahkan data utama seperti:
+
+- Kategori
+- Barang
+- Peminjaman
+
+Popup menampilkan ikon dan gambar checklist sebagai tanda proses berhasil.
 
 ### Dark Mode
 
+Dark mode tersedia pada halaman utama aplikasi.
+
+Cakupan dark mode:
+
 - Dashboard
 - Kategori
+- Detail kategori
 - Barang
 - Peminjaman
 - Laporan
 - Profile
-- Tabel dan card sudah disesuaikan agar tetap terbaca pada dark mode
+- Tabel
+- Card
+- Form
 
 ### REST API
 
 Inventra menyediakan REST API untuk kebutuhan integrasi dengan aplikasi lain seperti mobile app, frontend terpisah, dashboard eksternal, scanner barcode, atau sistem otomasi.
 
 Autentikasi API menggunakan Laravel Sanctum dengan Bearer Token.
-
-### Fitur Tambahan
-
-- Detail kategori untuk melihat daftar barang berdasarkan kategori tertentu.
-- Navigasi dari detail kategori langsung ke halaman detail barang.
-- Splash screen pada halaman login dengan animasi logo dan teks penyambut.
-- Pembatasan registrasi hanya untuk email dengan domain `@gmail.com`.
-- Pengecualian akun demo untuk kebutuhan pengujian sistem:
-  - `admin@example.com`
-  - `staff@example.com`
-  - `manager@example.com`
-- Auto logout setelah 30 menit tidak ada aktivitas.
-- Pesan notifikasi saat sesi pengguna berakhir karena tidak aktif.
-
----
 
 ## Teknologi yang Digunakan
 
@@ -211,8 +312,8 @@ Autentikasi API menggunakan Laravel Sanctum dengan Bearer Token.
 | Laravel Sanctum | Autentikasi API |
 | Chart.js | Grafik dashboard dan laporan |
 | Gmail SMTP | Pengiriman email reset password |
-
----
+| Pest | Automated testing |
+| PHPUnit | Test runner Laravel |
 
 ## Versi Pengembangan
 
@@ -222,16 +323,19 @@ Autentikasi API menggunakan Laravel Sanctum dengan Bearer Token.
 | Laravel Framework | 13.18.1 |
 | Database | PostgreSQL Supabase |
 | Frontend | Blade, Tailwind CSS, Vite |
-
----
+| Testing | Pest, PHPUnit |
 
 ## Entity Relationship Diagram
 
 Berikut adalah ERD dari sistem Inventra.
 
-![ERD Inventra](docs/erd-inventra.png)
+```txt
+docs/erd-inventra.png
+```
 
----
+Jika file ERD tersedia di repository, gambar akan ditampilkan dengan path berikut:
+
+![ERD Inventra](docs/erd-inventra.png)
 
 ## Struktur Database Utama
 
@@ -258,6 +362,7 @@ Menyimpan data pengguna.
 | email | varchar |
 | password | varchar |
 | email_verified_at | timestamp |
+| remember_token | varchar |
 | created_at | timestamp |
 | updated_at | timestamp |
 
@@ -328,7 +433,22 @@ Menyimpan detail barang yang dipinjam.
 | created_at | timestamp |
 | updated_at | timestamp |
 
----
+### personal_access_tokens
+
+Menyimpan token API Laravel Sanctum.
+
+| Kolom | Tipe |
+|---|---|
+| id | bigint |
+| tokenable_type | varchar |
+| tokenable_id | bigint |
+| name | varchar |
+| token | varchar |
+| abilities | text |
+| last_used_at | timestamp |
+| expires_at | timestamp |
+| created_at | timestamp |
+| updated_at | timestamp |
 
 ## Relasi Database
 
@@ -340,23 +460,51 @@ Menyimpan detail barang yang dipinjam.
 | borrowings 1 - N borrowing_details | Satu peminjaman memiliki banyak detail |
 | products 1 - N borrowing_details | Satu barang dapat muncul di banyak detail peminjaman |
 
----
+## File Database SQL
 
-## Akun Demo
+File database hasil export tersedia pada:
 
-Gunakan akun berikut untuk mencoba aplikasi setelah database di-seed.
+```txt
+database/inventra_database.sql
+```
 
-| Role | Email | Password |
-|---|---|---|
-| Admin | admin@example.com | admin123 |
-| Staff | staff@example.com | staff123 |
-| Manager | manager@example.com | manager123 |
+File ini digunakan sebagai output database untuk kebutuhan pengumpulan project.
 
----
+Data yang tidak disertakan dalam export:
 
-## REST API Documentation
+- Session
+- Cache
+- Job queue
+- Failed jobs
+- Password reset token
+- Personal access token
 
-Base URL local:
+Contoh command export database menggunakan `pg_dump`:
+
+```bash
+export PGSSLMODE=require
+
+pg_dump \
+  -h "HOST_POOLER_SUPABASE" \
+  -p 5432 \
+  -U "USERNAME_POOLER_SUPABASE" \
+  -d "postgres" \
+  --clean \
+  --if-exists \
+  --no-owner \
+  --no-privileges \
+  --exclude-table-data=personal_access_tokens \
+  --exclude-table-data=password_reset_tokens \
+  --exclude-table-data=sessions \
+  --exclude-table-data=cache \
+  --exclude-table-data=cache_locks \
+  --exclude-table-data=jobs \
+  --exclude-table-data=job_batches \
+  --exclude-table-data=failed_jobs \
+  -f database/inventra_database.sql
+```
+
+Jangan menulis password database langsung di command atau README.
 
 ## REST API Documentation
 
@@ -364,6 +512,12 @@ Base URL local:
 
 ```txt
 http://127.0.0.1:8000/api
+```
+
+Base URL production:
+
+```txt
+https://inventra.koreacentral.cloudapp.azure.com/api
 ```
 
 Semua endpoint selain login membutuhkan Bearer Token.
@@ -439,7 +593,7 @@ Contoh body tambah kategori:
 Filter stok menipis:
 
 ```txt
-GET /api/products?stock_status=low_stock
+GET /api/products?low_stock=1
 ```
 
 Contoh body tambah barang:
@@ -475,7 +629,7 @@ Contoh body tambah peminjaman:
 {
   "borrower_name": "Peminjam API Test",
   "borrow_date": "2026-07-05",
-  "return_date": "2026-07-10",
+  "due_date": "2026-07-10",
   "notes": "Peminjaman dibuat melalui REST API",
   "details": [
     {
@@ -509,6 +663,90 @@ GET /api/reports?start_date=2026-07-01&end_date=2026-07-31
 GET /api/reports?status=returned
 ```
 
+## Automated Testing
+
+Inventra menggunakan Pest untuk automated testing.
+
+Testing dijalankan menggunakan database SQLite in-memory agar tidak menyentuh database Supabase production.
+
+Konfigurasi testing berada pada `phpunit.xml`.
+
+Contoh konfigurasi penting:
+
+```xml
+<env name="APP_ENV" value="testing"/>
+<env name="APP_DEBUG" value="true"/>
+<env name="DB_CONNECTION" value="sqlite"/>
+<env name="DB_DATABASE" value=":memory:"/>
+<env name="CACHE_STORE" value="array"/>
+<env name="SESSION_DRIVER" value="array"/>
+<env name="QUEUE_CONNECTION" value="sync"/>
+<env name="MAIL_MAILER" value="array"/>
+<env name="FILESYSTEM_DISK" value="local"/>
+<env name="SESSION_LIFETIME" value="30"/>
+```
+
+### Cakupan Testing
+
+Testing yang tersedia:
+
+| Test File | Cakupan |
+|---|---|
+| tests/Unit/ProductStockAccessorTest.php | Pengujian accessor stok barang |
+| tests/Feature/ApiSmokeTest.php | Pengujian endpoint API utama |
+| tests/Feature/AuthEmailRestrictionTest.php | Pengujian pembatasan email Gmail |
+| tests/Feature/Auth/AuthenticationTest.php | Pengujian login dan logout |
+| tests/Feature/Auth/EmailVerificationTest.php | Pengujian email verification |
+| tests/Feature/Auth/PasswordConfirmationTest.php | Pengujian password confirmation |
+| tests/Feature/Auth/PasswordResetTest.php | Pengujian forgot dan reset password |
+| tests/Feature/Auth/PasswordUpdateTest.php | Pengujian update password |
+| tests/Feature/Auth/RegistrationTest.php | Pengujian register Gmail |
+| tests/Feature/CategoryCrudTest.php | Pengujian CRUD kategori |
+| tests/Feature/CategoryDetailTest.php | Pengujian detail kategori |
+| tests/Feature/DashboardAndReportTest.php | Pengujian dashboard dan laporan |
+| tests/Feature/ProductCrudTest.php | Pengujian CRUD barang |
+| tests/Feature/ProfileTest.php | Pengujian profile |
+| tests/Feature/RoleAccessTest.php | Pengujian hak akses role |
+
+### Menjalankan Testing
+
+Jalankan semua test:
+
+```bash
+php artisan test
+```
+
+Atau menggunakan Pest:
+
+```bash
+./vendor/bin/pest
+```
+
+Pada Windows PowerShell:
+
+```powershell
+php artisan test
+.\vendor\bin\pest
+```
+
+Jalankan test tertentu:
+
+```bash
+php artisan test tests/Feature/CategoryCrudTest.php
+php artisan test tests/Feature/ProductCrudTest.php
+php artisan test tests/Feature/ApiSmokeTest.php
+```
+
+### Hasil Testing Terbaru
+
+Hasil testing terakhir:
+
+```txt
+Tests: 63 passed
+Assertions: 150
+Duration: 8.51s
+```
+
 ## Instalasi Local
 
 ### 1. Clone Repository
@@ -534,11 +772,13 @@ npm install
 
 ### 4. Buat File Environment
 
+Linux atau macOS:
+
 ```bash
 cp .env.example .env
 ```
 
-Pada Windows PowerShell:
+Windows PowerShell:
 
 ```powershell
 copy .env.example .env
@@ -561,9 +801,17 @@ DB_PORT=5432
 DB_DATABASE=your_database_name
 DB_USERNAME=your_database_user
 DB_PASSWORD=your_database_password
+DB_SSLMODE=require
 ```
 
-### 7. Konfigurasi Supabase Storage
+### 7. Konfigurasi Session
+
+```env
+SESSION_LIFETIME=30
+SESSION_EXPIRE_ON_CLOSE=false
+```
+
+### 8. Konfigurasi Supabase Storage
 
 Tambahkan konfigurasi Supabase Storage pada `.env`.
 
@@ -576,7 +824,7 @@ SUPABASE_S3_ENDPOINT=https://your-project-ref.storage.supabase.co/storage/v1/s3
 SUPABASE_STORAGE_PUBLIC_URL=https://your-project-ref.supabase.co/storage/v1/object/public/product-images
 ```
 
-### 8. Konfigurasi Email
+### 9. Konfigurasi Email
 
 Contoh konfigurasi SMTP:
 
@@ -591,25 +839,25 @@ MAIL_FROM_ADDRESS=your_email@gmail.com
 MAIL_FROM_NAME="Inventra"
 ```
 
-### 9. Jalankan Migration dan Seeder
+### 10. Jalankan Migration dan Seeder
 
 ```bash
 php artisan migrate --seed
 ```
 
-### 10. Jalankan Development Server
+### 11. Jalankan Development Server
 
 ```bash
 php artisan serve
 ```
 
-### 11. Jalankan Vite
+### 12. Jalankan Vite
 
 ```bash
 npm run dev
 ```
 
-Aplikasi dapat diakses melalui:
+Aplikasi local dapat diakses melalui:
 
 ```txt
 http://127.0.0.1:8000
@@ -634,7 +882,7 @@ php artisan view:clear
 php artisan config:clear
 ```
 
-Cek route:
+Cek route web:
 
 ```bash
 php artisan route:list
@@ -652,14 +900,30 @@ Cek status migration:
 php artisan migrate:status
 ```
 
+Jalankan testing:
+
+```bash
+php artisan test
+```
+
 ## Struktur Folder Penting
 
 ```txt
 app/
 ├── Http/
 │   ├── Controllers/
-│   └── Middleware/
+│   ├── Middleware/
+│   └── Requests/
 ├── Models/
+
+database/
+├── factories/
+├── migrations/
+├── seeders/
+└── inventra_database.sql
+
+public/
+├── images/
 
 resources/
 ├── views/
@@ -671,47 +935,30 @@ resources/
 │   ├── profile/
 │   └── layouts/
 
-public/
-├── images/
-
 routes/
 ├── web.php
 └── api.php
 
-database/
-├── migrations/
-└── seeders/
+tests/
+├── Feature/
+└── Unit/
 ```
-
-```
-
-## Deployment Plan
-
-Rencana deployment Inventra:
-
-1. Menyiapkan Azure VM sebagai VPS.
-2. Install Nginx, PHP, Composer, Node.js, dan PostgreSQL client.
-3. Clone repository dari GitHub.
-4. Konfigurasi `.env` production.
-5. Jalankan migration.
-6. Build asset menggunakan Vite.
-7. Konfigurasi Nginx virtual host.
-8. Aktifkan SSL.
-9. Jalankan cache Laravel untuk production.
 
 ## Deployment
 
-Inventra telah berhasil dideploy ke Azure Virtual Machine dan dapat diakses melalui URL berikut:
+Inventra telah berhasil dideploy ke Azure Virtual Machine.
+
+Production URL:
 
 ```txt
 https://inventra.koreacentral.cloudapp.azure.com
 ```
 
-Aplikasi sudah menggunakan HTTPS dengan SSL dari Let's Encrypt, sehingga akses production tidak lagi memakai alamat IP mentah.
+Aplikasi menggunakan HTTPS dengan SSL dari Let's Encrypt.
 
 ## Production Environment
 
-Environment production Inventra menggunakan stack berikut:
+Stack production:
 
 - Azure Virtual Machine
 - Ubuntu Server 24.04 LTS
@@ -726,39 +973,11 @@ Environment production Inventra menggunakan stack berikut:
 - Let's Encrypt SSL
 - Certbot
 
-## Production URL
-
-```txt
-https://inventra.koreacentral.cloudapp.azure.com
-```
-
-## Production API Base URL
-
-```txt
-https://inventra.koreacentral.cloudapp.azure.com/api
-```
-
-Contoh endpoint API:
-
-```txt
-POST   /api/login
-POST   /api/logout
-GET    /api/user
-GET    /api/categories
-POST   /api/categories
-GET    /api/products
-POST   /api/products
-GET    /api/borrowings
-POST   /api/borrowings
-PATCH  /api/borrowings/{id}/return
-GET    /api/reports
-```
-
 ## Deployment Architecture
 
 Inventra berjalan di Azure VM dengan Nginx sebagai web server. Nginx diarahkan ke folder `public` milik Laravel.
 
-Database production menggunakan Supabase PostgreSQL. Untuk menghindari masalah koneksi IPv6 dari Azure VM ke Supabase, konfigurasi production menggunakan Supabase Session Pooler.
+Database production menggunakan Supabase PostgreSQL. Untuk menghindari masalah koneksi IPv6 dari Azure VM ke Supabase, production menggunakan Supabase Session Pooler.
 
 Penyimpanan gambar barang menggunakan Supabase Storage dengan konfigurasi S3-compatible storage disk pada Laravel.
 
@@ -803,6 +1022,8 @@ APP_URL=https://inventra.koreacentral.cloudapp.azure.com
 DB_CONNECTION=pgsql
 DB_SSLMODE=require
 
+SESSION_LIFETIME=30
+SESSION_EXPIRE_ON_CLOSE=false
 SESSION_SECURE_COOKIE=true
 ```
 
@@ -820,12 +1041,6 @@ Aplikasi production harus diakses melalui:
 
 ```txt
 https://inventra.koreacentral.cloudapp.azure.com
-```
-
-Bukan melalui:
-
-```txt
-http://4.230.66.157
 ```
 
 Alamat IP mentah hanya digunakan untuk kebutuhan teknis server.
@@ -878,7 +1093,7 @@ Gunakan workflow tersebut jika perubahan menyentuh:
 
 ## Documentation Update Workflow
 
-Jika perubahan hanya pada dokumentasi seperti `README.md`, maka server tidak wajib diupdate.
+Jika perubahan hanya pada dokumentasi seperti `README.md`, server tidak wajib diupdate.
 
 Cukup jalankan di lokal:
 
@@ -961,7 +1176,7 @@ free -h
 
 ## Production Deployment Notes
 
-Beberapa catatan penting untuk production:
+Catatan penting untuk production:
 
 - `APP_ENV` harus bernilai `production`.
 - `APP_DEBUG` harus bernilai `false`.
@@ -984,8 +1199,6 @@ Repository ini tidak menyertakan file atau credential sensitif seperti:
 - Supabase secret key
 - Azure credential
 
-Sebelum menjalankan aplikasi, buat file `.env` berdasarkan `.env.example`.
-
 Pastikan nilai berikut tidak pernah dipush ke GitHub:
 
 ```txt
@@ -994,6 +1207,31 @@ MAIL_PASSWORD
 SUPABASE_S3_ACCESS_KEY_ID
 SUPABASE_S3_SECRET_ACCESS_KEY
 ```
+
+Keamanan aplikasi:
+
+- Registrasi publik dibatasi hanya untuk email `@gmail.com`.
+- Akun demo dikecualikan untuk kebutuhan testing role.
+- Akun non-Gmail yang bukan akun demo tidak dapat login.
+- Session otomatis berakhir setelah 30 menit tidak aktif.
+- Production menggunakan HTTPS.
+- API menggunakan Bearer Token dari Laravel Sanctum.
+- File `.env` tidak masuk repository.
+
+## Output Pengumpulan
+
+Output project:
+
+| Output | Status |
+|---|---|
+| Source code GitHub | Tersedia |
+| Hosting atau demo link | Tersedia |
+| File database `.sql` | Tersedia di `database/inventra_database.sql` |
+| Dokumentasi API | Tersedia di README |
+| README instalasi dan penggunaan | Tersedia |
+| Akun login testing | Tersedia |
+| Link demo production | Tersedia |
+| Automated testing | Tersedia menggunakan Pest |
 
 ## Final Deployment Status
 
@@ -1005,11 +1243,14 @@ Platform        : Azure Virtual Machine
 OS              : Ubuntu Server 24.04 LTS
 Web Server      : Nginx
 Runtime         : PHP 8.4 FPM
+Framework       : Laravel 13.18.1
 Database        : Supabase PostgreSQL
 Storage         : Supabase Storage
 SSL             : Let's Encrypt
 Domain          : inventra.koreacentral.cloudapp.azure.com
 Production URL  : https://inventra.koreacentral.cloudapp.azure.com
+Session Timeout : 30 minutes
+Testing         : 63 passed, 150 assertions
 ```
 
 ## Author
