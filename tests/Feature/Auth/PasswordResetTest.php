@@ -1,73 +1,63 @@
 <?php
 
-namespace Tests\Feature\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
-use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
-use Tests\TestCase;
+test('reset password link screen can be rendered', function () {
+    $response = $this->get('/forgot-password');
 
-class PasswordResetTest extends TestCase
-{
-    use RefreshDatabase;
+    $response->assertStatus(200);
+});
 
-    public function test_reset_password_link_screen_can_be_rendered(): void
-    {
-        $response = $this->get('/forgot-password');
+test('reset password link can be requested', function () {
+    $user = inventraUser('staff', [
+        'email' => 'passwordresetuser@gmail.com',
+    ]);
 
-        $response->assertStatus(200);
-    }
+    $response = $this->post('/forgot-password', [
+        'email' => $user->email,
+    ]);
 
-    public function test_reset_password_link_can_be_requested(): void
-    {
-        Notification::fake();
+    $response->assertSessionHasNoErrors();
+    $response->assertSessionHas('status');
 
-        $user = User::factory()->create();
+    $this->assertDatabaseHas('password_reset_tokens', [
+        'email' => $user->email,
+    ]);
+});
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+test('reset password screen can be rendered', function () {
+    $user = inventraUser('staff', [
+        'email' => 'passwordresetscreen@gmail.com',
+    ]);
 
-        Notification::assertSentTo($user, ResetPassword::class);
-    }
+    $token = Password::broker()->createToken($user);
 
-    public function test_reset_password_screen_can_be_rendered(): void
-    {
-        Notification::fake();
+    $response = $this->get(route('password.reset', [
+        'token' => $token,
+        'email' => $user->email,
+    ]));
 
-        $user = User::factory()->create();
+    $response->assertStatus(200);
+});
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+test('password can be reset with valid token', function () {
+    $user = inventraUser('staff', [
+        'email' => 'passwordresetvalid@gmail.com',
+        'password' => bcrypt('old-password'),
+    ]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
+    $token = Password::broker()->createToken($user);
 
-            $response->assertStatus(200);
+    $response = $this->post(route('password.store'), [
+        'token' => $token,
+        'email' => $user->email,
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ]);
 
-            return true;
-        });
-    }
+    $response->assertSessionHasNoErrors();
+    $response->assertRedirect(route('login'));
 
-    public function test_password_can_be_reset_with_valid_token(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->create();
-
-        $this->post('/forgot-password', ['email' => $user->email]);
-
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post('/reset-password', [
-                'token' => $notification->token,
-                'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
-            ]);
-
-            $response
-                ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login'));
-
-            return true;
-        });
-    }
-}
+    expect(Hash::check('new-password', $user->refresh()->password))->toBeTrue();
+});

@@ -1,31 +1,32 @@
 <?php
 
-namespace Tests\Feature\Auth;
+use App\Models\Role;
+use App\Models\User;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+test('registration screen can be rendered', function () {
+    $response = $this->get('/register');
 
-class RegistrationTest extends TestCase
-{
-    use RefreshDatabase;
+    $response->assertStatus(200);
+});
 
-    public function test_registration_screen_can_be_rendered(): void
-    {
-        $response = $this->get('/register');
+test('new users can register with gmail email', function () {
+    Role::query()->firstOrCreate([
+        'name' => 'staff',
+    ]);
 
-        $response->assertStatus(200);
-    }
+    $response = $this->post('/register', [
+        'name' => 'Test User',
+        'email' => 'testuserregister@gmail.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
 
-    public function test_new_users_can_register(): void
-    {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
+    $this->assertAuthenticated();
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
-    }
-}
+    $response->assertRedirect(route('dashboard', absolute: false));
+
+    $user = User::query()->where('email', 'testuserregister@gmail.com')->first();
+
+    expect($user)->not->toBeNull();
+    expect($user->role->name)->toBe('staff');
+});
