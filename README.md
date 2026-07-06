@@ -648,20 +648,318 @@ Rencana deployment Inventra:
 8. Aktifkan SSL.
 9. Jalankan cache Laravel untuk production.
 
-## Catatan Keamanan
+## Deployment
 
-File `.env` tidak boleh di-commit ke GitHub karena berisi kredensial database, SMTP, dan Supabase Storage.
+Inventra telah berhasil dideploy ke Azure Virtual Machine dan dapat diakses melalui URL berikut:
 
-Pastikan `.gitignore` memiliki konfigurasi berikut:
-
-```gitignore
-.env
-/vendor
-/node_modules
-/public/build
-/storage/*.key
+```txt
+https://inventra.koreacentral.cloudapp.azure.com
 ```
 
+Aplikasi sudah menggunakan HTTPS dengan SSL dari Let's Encrypt, sehingga akses production tidak lagi memakai alamat IP mentah.
+
+## Production Environment
+
+Environment production Inventra menggunakan stack berikut:
+
+- Azure Virtual Machine
+- Ubuntu Server 24.04 LTS
+- Nginx
+- PHP 8.4 FPM
+- Composer
+- Node.js
+- Laravel 13
+- Supabase PostgreSQL
+- Supabase Storage
+- Supabase Session Pooler
+- Let's Encrypt SSL
+- Certbot
+
+## Production URL
+
+```txt
+https://inventra.koreacentral.cloudapp.azure.com
+```
+
+## Production API Base URL
+
+```txt
+https://inventra.koreacentral.cloudapp.azure.com/api
+```
+
+Contoh endpoint API:
+
+```txt
+POST   /api/login
+POST   /api/logout
+GET    /api/user
+GET    /api/categories
+POST   /api/categories
+GET    /api/products
+POST   /api/products
+GET    /api/borrowings
+POST   /api/borrowings
+PATCH  /api/borrowings/{id}/return
+GET    /api/reports
+```
+
+## Deployment Architecture
+
+Inventra berjalan di Azure VM dengan Nginx sebagai web server. Nginx diarahkan ke folder `public` milik Laravel.
+
+Database production menggunakan Supabase PostgreSQL. Untuk menghindari masalah koneksi IPv6 dari Azure VM ke Supabase, konfigurasi production menggunakan Supabase Session Pooler.
+
+Penyimpanan gambar barang menggunakan Supabase Storage dengan konfigurasi S3-compatible storage disk pada Laravel.
+
+Alur deployment production:
+
+```txt
+User
+  |
+  | HTTPS
+  v
+Azure VM
+  |
+  | Nginx
+  v
+Laravel Public Directory
+  |
+  | PHP 8.4 FPM
+  v
+Laravel Application
+  |
+  | PostgreSQL Session Pooler
+  v
+Supabase PostgreSQL
+
+Laravel Application
+  |
+  | Supabase S3-compatible Storage
+  v
+Supabase Storage
+```
+
+## Production Configuration
+
+Konfigurasi penting pada file `.env` production:
+
+```env
+APP_NAME=Inventra
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://inventra.koreacentral.cloudapp.azure.com
+
+DB_CONNECTION=pgsql
+DB_SSLMODE=require
+
+SESSION_SECURE_COOKIE=true
+```
+
+Nilai sensitif seperti database password, SMTP password, Supabase access key, Supabase secret key, dan credential lainnya hanya disimpan di file `.env` server.
+
+File `.env` tidak disertakan dalam repository GitHub.
+
+## SSL and HTTPS
+
+Inventra menggunakan SSL gratis dari Let's Encrypt.
+
+SSL dikonfigurasi menggunakan Certbot dan Nginx.
+
+Aplikasi production harus diakses melalui:
+
+```txt
+https://inventra.koreacentral.cloudapp.azure.com
+```
+
+Bukan melalui:
+
+```txt
+http://4.230.66.157
+```
+
+Alamat IP mentah hanya digunakan untuk kebutuhan teknis server.
+
+## Server Directory
+
+Project Inventra disimpan di server pada direktori:
+
+```bash
+/var/www/inventra
+```
+
+Nginx diarahkan ke:
+
+```bash
+/var/www/inventra/public
+```
+
+## Server Update Workflow
+
+Setelah melakukan perubahan kode di lokal dan push ke GitHub, update aplikasi di server dengan langkah berikut:
+
+```bash
+cd /var/www/inventra
+
+git pull origin main
+npm install
+npm run build
+
+php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+sudo systemctl restart php8.4-fpm
+sudo systemctl reload nginx
+```
+
+Gunakan workflow tersebut jika perubahan menyentuh:
+
+- Blade view
+- CSS
+- JavaScript
+- Controller
+- Model
+- Route
+- Config
+- Asset frontend
+- File Laravel yang memengaruhi aplikasi
+
+## Documentation Update Workflow
+
+Jika perubahan hanya pada dokumentasi seperti `README.md`, maka server tidak wajib diupdate.
+
+Cukup jalankan di lokal:
+
+```bash
+git add README.md
+git commit -m "Update README documentation"
+git push
+```
+
+Jika tetap ingin menyamakan isi repository di server, cukup jalankan:
+
+```bash
+cd /var/www/inventra
+git pull origin main
+```
+
+Tidak perlu menjalankan:
+
+```bash
+npm install
+npm run build
+php artisan config:cache
+sudo systemctl reload nginx
+```
+
+karena perubahan dokumentasi tidak memengaruhi aplikasi production.
+
+## Production Server Commands
+
+Cek status Nginx:
+
+```bash
+sudo systemctl status nginx --no-pager
+```
+
+Cek status PHP-FPM:
+
+```bash
+sudo systemctl status php8.4-fpm --no-pager
+```
+
+Cek status Laravel:
+
+```bash
+cd /var/www/inventra
+php artisan about
+```
+
+Cek status migration:
+
+```bash
+cd /var/www/inventra
+php artisan migrate:status
+```
+
+Cek log Laravel:
+
+```bash
+cd /var/www/inventra
+tail -n 100 storage/logs/laravel.log
+```
+
+Cek log Nginx:
+
+```bash
+sudo tail -n 100 /var/log/nginx/error.log
+```
+
+Cek kapasitas disk:
+
+```bash
+df -h
+```
+
+Cek RAM dan swap:
+
+```bash
+free -h
+```
+
+## Production Deployment Notes
+
+Beberapa catatan penting untuk production:
+
+- `APP_ENV` harus bernilai `production`.
+- `APP_DEBUG` harus bernilai `false`.
+- `APP_URL` harus memakai URL HTTPS production.
+- Database Supabase di server menggunakan Session Pooler.
+- HTTPS dikelola dengan Certbot.
+- File `.env` production hanya boleh ada di server.
+- SSH private key tidak boleh masuk ke repository.
+- Jangan menjalankan `php artisan migrate:fresh` di production karena akan menghapus data.
+
+## Security Notes
+
+Repository ini tidak menyertakan file atau credential sensitif seperti:
+
+- `.env`
+- SSH private key
+- Database password
+- SMTP password
+- Supabase access key
+- Supabase secret key
+- Azure credential
+
+Sebelum menjalankan aplikasi, buat file `.env` berdasarkan `.env.example`.
+
+Pastikan nilai berikut tidak pernah dipush ke GitHub:
+
+```txt
+DB_PASSWORD
+MAIL_PASSWORD
+SUPABASE_S3_ACCESS_KEY_ID
+SUPABASE_S3_SECRET_ACCESS_KEY
+```
+
+## Final Deployment Status
+
+Status deployment Inventra:
+
+```txt
+Status          : Deployed
+Platform        : Azure Virtual Machine
+OS              : Ubuntu Server 24.04 LTS
+Web Server      : Nginx
+Runtime         : PHP 8.4 FPM
+Database        : Supabase PostgreSQL
+Storage         : Supabase Storage
+SSL             : Let's Encrypt
+Domain          : inventra.koreacentral.cloudapp.azure.com
+Production URL  : https://inventra.koreacentral.cloudapp.azure.com
+```
 
 ## Author
 
