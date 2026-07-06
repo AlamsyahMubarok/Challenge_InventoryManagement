@@ -335,5 +335,160 @@
             updateThemeIcons();
         });
     </script>
+
+    @auth
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const timeoutMinutes = Number(@json((int) config('session.lifetime', 30))) || 30;
+                const timeoutMilliseconds = timeoutMinutes * 60 * 1000;
+                const storageKey = 'inventra_last_activity_at';
+
+                let logoutTimer = null;
+                let isLoggingOut = false;
+                let lastWriteAt = 0;
+
+                function now() {
+                    return Date.now();
+                }
+
+                function getLastActivity() {
+                    const storedValue = localStorage.getItem(storageKey);
+                    const timestamp = Number(storedValue);
+
+                    if (!storedValue || Number.isNaN(timestamp)) {
+                        return now();
+                    }
+
+                    return timestamp;
+                }
+
+                function setLastActivity(force = false) {
+                    const currentTime = now();
+
+                    if (!force && currentTime - lastWriteAt < 1000) {
+                        return;
+                    }
+
+                    lastWriteAt = currentTime;
+                    localStorage.setItem(storageKey, String(currentTime));
+                }
+
+                function getInactiveDuration() {
+                    return now() - getLastActivity();
+                }
+
+                function getRemainingTime() {
+                    return Math.max(1000, timeoutMilliseconds - getInactiveDuration());
+                }
+
+                function resetLogoutTimer() {
+                    if (logoutTimer) {
+                        clearTimeout(logoutTimer);
+                    }
+
+                    logoutTimer = setTimeout(function () {
+                        checkSessionTimeout();
+                    }, getRemainingTime());
+                }
+
+                function checkSessionTimeout() {
+                    if (isLoggingOut) {
+                        return;
+                    }
+
+                    if (getInactiveDuration() >= timeoutMilliseconds) {
+                        logoutUser();
+                        return;
+                    }
+
+                    resetLogoutTimer();
+                }
+
+                function handleActivity() {
+                    if (isLoggingOut) {
+                        return;
+                    }
+
+                    if (getInactiveDuration() >= timeoutMilliseconds) {
+                        logoutUser();
+                        return;
+                    }
+
+                    setLastActivity();
+                    resetLogoutTimer();
+                }
+
+                function logoutUser() {
+                    if (isLoggingOut) {
+                        return;
+                    }
+
+                    isLoggingOut = true;
+
+                    try {
+                        localStorage.removeItem(storageKey);
+                    } catch (error) {
+                        //
+                    }
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                    if (!csrfToken) {
+                        window.location.replace("{{ route('login') }}?timeout=1");
+                        return;
+                    }
+
+                    fetch("{{ route('logout') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    }).finally(function () {
+                        window.location.replace("{{ route('login') }}?timeout=1");
+                    });
+                }
+
+                const activityEvents = [
+                    'click',
+                    'keydown',
+                    'scroll',
+                    'touchstart',
+                    'pointermove'
+                ];
+
+                activityEvents.forEach(function (eventName) {
+                    window.addEventListener(eventName, handleActivity, {
+                        passive: true
+                    });
+                });
+
+                document.addEventListener('visibilitychange', function () {
+                    if (document.visibilityState === 'visible') {
+                        handleActivity();
+                    }
+                });
+
+                window.addEventListener('storage', function (event) {
+                    if (event.key !== storageKey) {
+                        return;
+                    }
+
+                    if (event.newValue === null && !isLoggingOut) {
+                        window.location.replace("{{ route('login') }}?timeout=1");
+                        return;
+                    }
+
+                    resetLogoutTimer();
+                });
+
+                setLastActivity(true);
+                resetLogoutTimer();
+            });
+        </script>
+    @endauth
 </body>
 </html>

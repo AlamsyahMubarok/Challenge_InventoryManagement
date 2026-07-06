@@ -27,6 +27,30 @@ Sistem ini mendukung pembagian hak akses berdasarkan role, sehingga setiap pengg
 - Update password
 - Hapus akun
 
+Inventra menggunakan sistem autentikasi berbasis Laravel Breeze.
+
+Fitur autentikasi yang tersedia:
+
+- Login
+- Register
+- Logout
+- Profile management
+- Forgot password
+- Reset password
+- Email validation restriction
+- Auto logout karena tidak aktif
+
+Jika pengguna tidak aktif selama 30 menit, sistem akan otomatis logout dan mengarahkan pengguna ke halaman login. Pesan yang ditampilkan:
+"Sesi Anda telah berakhir. Silakan masuk kembali."
+
+### Email Registration Restriction
+
+Registrasi publik hanya mengizinkan email dengan domain `@gmail.com`.
+
+Jika pengguna mencoba register menggunakan email selain `@gmail.com`, sistem akan menampilkan pesan:
+
+"Harap gunakan email valid @gmail.com."
+
 ### Manajemen Role
 
 Inventra memiliki tiga role utama:
@@ -57,6 +81,20 @@ Inventra memiliki tiga role utama:
 - Mengedit kategori
 - Menghapus kategori
 - Validasi agar kategori yang masih memiliki barang tidak dapat dihapus
+
+### Detail Kategori
+Inventra menyediakan halaman detail kategori untuk membantu pengguna melihat barang berdasarkan kategori tertentu.
+
+Pada halaman detail kategori, pengguna dapat melihat:
+
+- Nama kategori
+- Deskripsi kategori
+- Jumlah barang dalam kategori
+- Total stok tersedia
+- Jumlah barang dengan stok menipis
+- Daftar barang yang termasuk dalam kategori tersebut
+
+Setiap barang pada halaman detail kategori dapat diklik dan akan mengarahkan pengguna ke halaman detail barang.
 
 ### Manajemen Barang
 
@@ -143,6 +181,19 @@ Saat barang dikembalikan, sistem akan mengubah stok berdasarkan kondisi akhir:
 Inventra menyediakan REST API untuk kebutuhan integrasi dengan aplikasi lain seperti mobile app, frontend terpisah, dashboard eksternal, scanner barcode, atau sistem otomasi.
 
 Autentikasi API menggunakan Laravel Sanctum dengan Bearer Token.
+
+### Fitur Tambahan
+
+- Detail kategori untuk melihat daftar barang berdasarkan kategori tertentu.
+- Navigasi dari detail kategori langsung ke halaman detail barang.
+- Splash screen pada halaman login dengan animasi logo dan teks penyambut.
+- Pembatasan registrasi hanya untuk email dengan domain `@gmail.com`.
+- Pengecualian akun demo untuk kebutuhan pengujian sistem:
+  - `admin@example.com`
+  - `staff@example.com`
+  - `manager@example.com`
+- Auto logout setelah 30 menit tidak ada aktivitas.
+- Pesan notifikasi saat sesi pengguna berakhir karena tidak aktif.
 
 ---
 

@@ -143,6 +143,18 @@
             box-shadow: 0 0 0 3px rgba(255, 44, 44, 0.16);
         }
 
+        .timeout-alert {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            color: #e11d48;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
         @media (max-width: 1024px) {
             html,
             body {
@@ -190,6 +202,12 @@
                 </p>
 
                 <x-auth-session-status class="mb-4" :status="session('status')" />
+
+                @if (request('timeout'))
+                    <div class="timeout-alert">
+                        Sesi Anda telah berakhir. Silakan masuk kembali.
+                    </div>
+                @endif
 
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
