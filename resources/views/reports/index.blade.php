@@ -94,7 +94,7 @@
 
                     <a href="{{ route('reports.export.csv', request()->query()) }}"
                        class="inventra-report-dropdown-item block px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition">
-                        Cetak sebagai Excel
+                        Cetak sebagai CSV
                     </a>
                 </div>
             </div>
