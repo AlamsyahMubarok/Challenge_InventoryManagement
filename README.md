@@ -665,13 +665,40 @@ GET /api/reports?status=returned
 
 ## Automated Testing
 
-Inventra menggunakan Pest untuk automated testing.
+Inventra dilengkapi automated testing menggunakan Pest dan PHPUnit.
 
-Testing dijalankan menggunakan database SQLite in-memory agar tidak menyentuh database Supabase production.
+Testing dibuat untuk memastikan fitur utama aplikasi berjalan sesuai requirement challenge, terutama pada bagian authentication, role access, master data kategori, master data barang, dashboard, laporan, REST API, profile, reset password, dan validasi stok barang.
 
-Konfigurasi testing berada pada `phpunit.xml`.
+Testing dijalankan menggunakan SQLite in-memory sehingga proses test tidak menyentuh database Supabase production.
 
-Contoh konfigurasi penting:
+### Tujuan Testing
+
+Testing pada project ini digunakan untuk memverifikasi:
+
+- Proses authentication berjalan dengan benar.
+- Pembatasan register hanya untuk email `@gmail.com` berjalan sesuai aturan.
+- Akun demo tetap dapat digunakan untuk login.
+- Hak akses Admin, Staff, dan Manager berjalan sesuai role.
+- CRUD kategori berjalan dengan benar.
+- Detail kategori dapat menampilkan barang sesuai kategori.
+- CRUD barang berjalan dengan benar.
+- Dashboard dapat diakses oleh role yang sesuai.
+- Laporan dapat diakses oleh Admin dan Manager.
+- Export CSV laporan dapat dijalankan.
+- Endpoint REST API utama dapat diakses menggunakan Laravel Sanctum.
+- Profile management berjalan dengan benar.
+- Forgot password dan reset password berjalan dengan benar.
+- Accessor stok barang dapat menghitung status stok menipis dan stok tidak tersedia.
+
+### Konfigurasi Testing
+
+Konfigurasi testing berada pada file:
+
+```txt
+phpunit.xml
+```
+
+Konfigurasi penting:
 
 ```xml
 <env name="APP_ENV" value="testing"/>
@@ -686,37 +713,86 @@ Contoh konfigurasi penting:
 <env name="SESSION_LIFETIME" value="30"/>
 ```
 
-### Cakupan Testing
+Dengan konfigurasi tersebut, semua test berjalan pada database sementara di memory dan tidak memengaruhi data asli di Supabase.
 
-Testing yang tersedia:
+### Struktur Folder Testing
+
+```txt
+tests/
+├── Feature/
+│   ├── Auth/
+│   │   ├── AuthenticationTest.php
+│   │   ├── EmailVerificationTest.php
+│   │   ├── PasswordConfirmationTest.php
+│   │   ├── PasswordResetTest.php
+│   │   ├── PasswordUpdateTest.php
+│   │   └── RegistrationTest.php
+│   ├── ApiSmokeTest.php
+│   ├── AuthEmailRestrictionTest.php
+│   ├── CategoryCrudTest.php
+│   ├── CategoryDetailTest.php
+│   ├── DashboardAndReportTest.php
+│   ├── ProductCrudTest.php
+│   ├── ProfileTest.php
+│   └── RoleAccessTest.php
+│
+├── Unit/
+│   └── ProductStockAccessorTest.php
+│
+├── Pest.php
+└── TestCase.php
+```
+
+### Cakupan Feature Test
 
 | Test File | Cakupan |
 |---|---|
-| tests/Unit/ProductStockAccessorTest.php | Pengujian accessor stok barang |
-| tests/Feature/ApiSmokeTest.php | Pengujian endpoint API utama |
-| tests/Feature/AuthEmailRestrictionTest.php | Pengujian pembatasan email Gmail |
-| tests/Feature/Auth/AuthenticationTest.php | Pengujian login dan logout |
-| tests/Feature/Auth/EmailVerificationTest.php | Pengujian email verification |
-| tests/Feature/Auth/PasswordConfirmationTest.php | Pengujian password confirmation |
-| tests/Feature/Auth/PasswordResetTest.php | Pengujian forgot dan reset password |
-| tests/Feature/Auth/PasswordUpdateTest.php | Pengujian update password |
-| tests/Feature/Auth/RegistrationTest.php | Pengujian register Gmail |
-| tests/Feature/CategoryCrudTest.php | Pengujian CRUD kategori |
-| tests/Feature/CategoryDetailTest.php | Pengujian detail kategori |
-| tests/Feature/DashboardAndReportTest.php | Pengujian dashboard dan laporan |
-| tests/Feature/ProductCrudTest.php | Pengujian CRUD barang |
-| tests/Feature/ProfileTest.php | Pengujian profile |
-| tests/Feature/RoleAccessTest.php | Pengujian hak akses role |
+| `tests/Feature/Auth/AuthenticationTest.php` | Login, gagal login, dan logout |
+| `tests/Feature/Auth/EmailVerificationTest.php` | Halaman verifikasi email dan proses verifikasi |
+| `tests/Feature/Auth/PasswordConfirmationTest.php` | Konfirmasi password |
+| `tests/Feature/Auth/PasswordResetTest.php` | Forgot password dan reset password |
+| `tests/Feature/Auth/PasswordUpdateTest.php` | Update password pengguna |
+| `tests/Feature/Auth/RegistrationTest.php` | Register user baru menggunakan email Gmail |
+| `tests/Feature/AuthEmailRestrictionTest.php` | Validasi email `@gmail.com`, pengecualian akun demo, dan blokir akun non-Gmail |
+| `tests/Feature/RoleAccessTest.php` | Hak akses Admin, Staff, dan Manager |
+| `tests/Feature/CategoryCrudTest.php` | Tambah, edit, hapus, validasi hapus, dan pencarian kategori |
+| `tests/Feature/CategoryDetailTest.php` | Detail kategori dan daftar barang dalam kategori |
+| `tests/Feature/ProductCrudTest.php` | Detail, tambah, edit, hapus, dan pencarian barang |
+| `tests/Feature/DashboardAndReportTest.php` | Akses dashboard, laporan, dan export CSV |
+| `tests/Feature/ApiSmokeTest.php` | Endpoint API user, categories, products, low stock products, dan reports |
+| `tests/Feature/ProfileTest.php` | Halaman profile, update profile, dan hapus akun |
 
-### Menjalankan Testing
+### Cakupan Unit Test
 
-Jalankan semua test:
+| Test File | Cakupan |
+|---|---|
+| `tests/Unit/ProductStockAccessorTest.php` | Pengujian accessor stok barang, status stok menipis, dan stok tidak tersedia |
+
+### Detail Pengujian Penting
+
+Beberapa skenario penting yang diuji:
+
+- User dengan email selain `@gmail.com` tidak dapat melakukan register.
+- User dengan email Gmail dapat register dan otomatis mendapatkan role Staff.
+- Akun demo `admin@example.com`, `staff@example.com`, dan `manager@example.com` tetap dapat digunakan.
+- Staff tidak dapat mengakses laporan.
+- Manager tidak dapat mengakses kategori dan barang.
+- Admin dapat mengakses fitur kategori, barang, peminjaman, dan laporan.
+- Kategori yang masih memiliki barang tidak dapat dihapus.
+- Barang dapat dibuat tanpa gambar.
+- Barang dapat dicari berdasarkan keyword.
+- Halaman detail kategori hanya menampilkan barang dari kategori terkait.
+- API dapat mengembalikan data user login.
+- API dapat menampilkan categories, products, low stock products, dan reports.
+- Product accessor dapat mendeteksi stok menipis jika `stock <= minimum_stock`.
+
+### Menjalankan Semua Test
 
 ```bash
 php artisan test
 ```
 
-Atau menggunakan Pest:
+Atau menggunakan Pest secara langsung:
 
 ```bash
 ./vendor/bin/pest
@@ -729,12 +805,15 @@ php artisan test
 .\vendor\bin\pest
 ```
 
-Jalankan test tertentu:
+### Menjalankan Test Tertentu
 
 ```bash
+php artisan test tests/Feature/AuthEmailRestrictionTest.php
+php artisan test tests/Feature/RoleAccessTest.php
 php artisan test tests/Feature/CategoryCrudTest.php
 php artisan test tests/Feature/ProductCrudTest.php
 php artisan test tests/Feature/ApiSmokeTest.php
+php artisan test tests/Unit/ProductStockAccessorTest.php
 ```
 
 ### Hasil Testing Terbaru
@@ -746,6 +825,16 @@ Tests: 63 passed
 Assertions: 150
 Duration: 8.51s
 ```
+
+Output tersebut menunjukkan seluruh automated test berhasil dijalankan tanpa error.
+
+### Catatan Testing
+
+- Testing tidak menggunakan database Supabase production.
+- Testing menggunakan SQLite in-memory.
+- Testing tidak mengirim email asli karena `MAIL_MAILER` menggunakan mode `array`.
+- Testing tidak mengunggah file ke Supabase Storage karena `FILESYSTEM_DISK` menggunakan disk local.
+- Testing dapat dijalankan secara lokal sebelum melakukan commit atau deployment.
 
 ## Instalasi Local
 
@@ -1252,6 +1341,8 @@ Production URL  : https://inventra.koreacentral.cloudapp.azure.com
 Session Timeout : 30 minutes
 Testing         : 63 passed, 150 assertions
 ```
+
+
 
 ## Author
 
